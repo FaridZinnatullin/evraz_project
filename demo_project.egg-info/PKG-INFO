@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: demo-project
+Version: 1.0.0
+Summary: Демо проект, построенный по чистой архитектуре
+Home-page: UNKNOWN
+Author: Zinnatullin Farid
+Author-email: FaridZ1999@yandex.ru
+License: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: ~=3.9.5
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+
+UNKNOWN
+
