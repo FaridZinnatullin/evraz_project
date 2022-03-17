@@ -21,18 +21,18 @@ mapper.map_imperatively(
     }
 )
 
-mapper.map_imperatively(
-    dataclasses.ChatBlackList,
-    tables.chat_blacklist,
-    properties={
-        'users': relationship(dataclasses.ChatUser, lazy='subquery')
-    }
-)
-
-mapper.map_imperatively(
-    dataclasses.ChatSuperusers,
-    tables.chat_superusers,
-    properties={
-        'users': relationship(dataclasses.ChatUser, lazy='subquery')
-    }
-)
+# mapper.map_imperatively(
+#     dataclasses.ChatBlackList,
+#     tables.chat_blacklist,
+#     properties={
+#         'members': relationship(dataclasses.ChatUser, lazy='subquery')
+#     }
+# )
+#
+# mapper.map_imperatively(
+#     dataclasses.ChatSuperusers,
+#     tables.chat_superusers,
+#     properties={
+#         'members': relationship(dataclasses.ChatUser, lazy='subquery')
+#     }
+# )

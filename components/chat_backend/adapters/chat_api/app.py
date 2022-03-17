@@ -37,6 +37,7 @@ def create_app(
     # app.register(controllers.Orders(authenticator=authenticator, orders=orders))
     # app.register(controllers.Customers(authenticator=authenticator, customers=customers))
 
-    app.register(controllers.ChatManager(authenticator=authenticator, chat_manager=chat_manager))
+
+    app.register(controllers.Chat(chat_manager=chat_manager))
 
     return app

@@ -23,31 +23,31 @@ class ChatUser:
 
 
 
-@attr.dataclass
-class ChatGroupUsers:
-    # chat: 'Chat'
-    users: List[ChatUser] = attr.ib(factory=list)
-    id: Optional[int] = None
-
-    def add_user(self, user: ChatUser):
-        if user not in self.users:
-            self.users.append(user)
-
-    def remove_user(self, user: ChatUser):
-        if user in self.users:
-            self.users.remove(user)
-
-
-@attr.dataclass
-class ChatBlackList(ChatGroupUsers):
-    pass
+# @attr.dataclass
+# class ChatGroupUsers:
+#     # chat: 'Chat'
+#     members: List[ChatUser] = attr.ib(factory=list)
+#     id: Optional[int] = None
+#
+#     def add_user(self, user: ChatUser):
+#         if user not in self.members:
+#             self.members.append(user)
+#
+#     def remove_user(self, user: ChatUser):
+#         if user in self.members:
+#             self.members.remove(user)
 
 
-@attr.dataclass
-class ChatSuperusers(ChatGroupUsers):
-    pass
+# @attr.dataclass
+# class ChatBlackList(ChatGroupUsers):
+#     pass
+#
+#
+# @attr.dataclass
+# class ChatSuperusers(ChatGroupUsers):
+#     pass
 
-@attr.define
+
 @attr.dataclass
 class ChatMessage:
     chat: 'Chat'
@@ -64,8 +64,11 @@ class ChatMessage:
 @attr.dataclass
 class Chat:
     name: str
-    blacklist: ChatBlackList
-    superusers: ChatSuperusers
+    #костыль, идей лучше нет
+    tmp_id: int
+    # blacklist: ChatBlackList
+    # superusers: ChatSuperusers
+    creator: Optional[User] = None
     messages: List[ChatMessage] = attr.ib(factory=list)
     members: List[ChatUser] = attr.ib(factory=list)
     id: Optional[int] = None
@@ -78,19 +81,19 @@ class Chat:
             pass
             # выводим сообщение о том, что пользователь уже состоит в чате
 
-    def ban_user(self, user: ChatUser):
-        if user not in self.blacklist.users:
-            user.banned = True
-            self.blacklist.users.append(user)
-            self.members.remove(user)
-        else:
-            pass
-            # выводим сообщение о том, что пользователь уже забанен
-
-    def mute_user(self, user: ChatUser):
-        if user not in self.blacklist.users:
-            user.banned = True
-            self.blacklist.users.append(user)
-        else:
-            pass
-            # выводим сообщение о том, что пользователь уже замучен
+    # def ban_user(self, user: ChatUser):
+    #     if user not in self.blacklist.users:
+    #         user.banned = True
+    #         self.blacklist.users.append(user)
+    #         self.members.remove(user)
+    #     else:
+    #         pass
+    #         # выводим сообщение о том, что пользователь уже забанен
+    #
+    # def mute_user(self, user: ChatUser):
+    #     if user not in self.blacklist.users:
+    #         user.banned = True
+    #         self.blacklist.users.append(user)
+    #     else:
+    #         pass
+    #         # выводим сообщение о том, что пользователь уже замучен
