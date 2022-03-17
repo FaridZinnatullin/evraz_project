@@ -1,12 +1,6 @@
-from typing import List, Optional
-
-from sqlalchemy import select
-
-from classic.components import component
 from classic.sql_storage import BaseRepository
 
 from chat_backend.application import interfaces
-from chat_backend.application.dataclasses import Cart, Customer, Order, Product
 
 # @component
 # class CustomersRepo(BaseRepository, interfaces.CustomersRepo):
