@@ -35,8 +35,8 @@ users = Table(
 chat_users = Table(
     'ChatUsers',
     Column('id', Integer, primary_key=True, autoincrement=True),
-    Column('user', Integer, ForeignKey('User.id')),
-    Column('chat', Integer, ForeignKey('Chat.id')),
+    Column('user_id', Integer, ForeignKey('User.id')),
+    Column('chat_id', Integer, ForeignKey('Chat.id')),
     Column('muted', Boolean, default=False),
     Column('banned', Boolean, default=False),
     Column('invite_date', DateTime, default=datetime.datetime.utcnow()),
@@ -50,15 +50,15 @@ chats = Table(
     Column('name', String(50), nullable=False),
     # relationship('messages', 'ChatMessage'),
     # relationship('members', 'ChatUser'),
-    Column('blacklist', Integer, ForeignKey('Blacklist.id')),
-    Column('superusers', Integer, ForeignKey('Superusers.id')),
+    Column('blacklist_id', Integer, ForeignKey('Blacklist.id')),
+    Column('superusers_id', Integer, ForeignKey('Superusers.id')),
 )
 
 chat_messages = Table(
     'ChatMessages',
     Column('id', BigInteger, primary_key=True, autoincrement=True),
-    Column('chat', Integer, ForeignKey('Chat.id')),
-    Column('user', Integer, ForeignKey('ChatUser.id')),
+    Column('chat_id', Integer, ForeignKey('Chat.id')),
+    Column('user_id', Integer, ForeignKey('ChatUser.id')),
     Column('text', Text, nullable=False),
     Column('send_date', DateTime, default=datetime.datetime.utcnow()),
     Column('deleted', Boolean, default=False),

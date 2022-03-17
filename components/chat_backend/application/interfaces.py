@@ -43,12 +43,17 @@ class ChatRepo(ABC):
         ...
 
     @abstractmethod
-    def get_all_users(self, chat: Chat) -> List[User]:
+    def get_all_users(self, id_chat: int) -> List[ChatUser]:
         ...
 
     @abstractmethod
-    def get_all_messages(self, chat: Chat) -> List[ChatMessage]:
+    def get_all_messages(self, id_chat: int) -> List[ChatMessage]:
         ...
+
+    @abstractmethod
+    def get_chats_by_user(self, user: User) -> List[Chat]:
+        ...
+
 
 
 class MessageRepo(ABC):
