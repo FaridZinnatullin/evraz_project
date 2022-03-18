@@ -53,7 +53,6 @@ chats = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('name', String(50), nullable=False),
-    Column('creator', Integer, ForeignKey('ChatUser.id'), nullable=True),
     Column('tmp_id', Integer)
     # relationship('messages', 'ChatMessage'),
     # relationship('members', 'ChatUser'),

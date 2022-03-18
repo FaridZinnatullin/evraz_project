@@ -66,8 +66,6 @@ class Chat:
     name: str
     #костыль, идей лучше нет
     tmp_id: int
-    # blacklist: ChatBlackList
-    # superusers: ChatSuperusers
     creator: Optional[User] = None
     messages: List[ChatMessage] = attr.ib(factory=list)
     members: List[ChatUser] = attr.ib(factory=list)

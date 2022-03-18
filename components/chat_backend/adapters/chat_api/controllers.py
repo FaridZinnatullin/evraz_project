@@ -39,26 +39,45 @@ class Chat:
     # создание юзера
     @join_point
     def on_post_create_user(self, request, response):
-        user = self.chat_manager.create_user(**request.media)
-        print('123')
+        self.chat_manager.create_user(**request.media)
         response.media = {
             'status': 'OK'
         }
 
     @join_point
     def on_get_get_user(self, request, response):
-        result = self.chat_manager.get_user_by_id(5)
-
-        response.media = result
+        user = self.chat_manager.get_user_by_id(**request.params)
+        if user:
+            result = {
+                'user_id': user.id,
+                'user_login': user.login,
+                'user_password': user.password,
+                'user_name': user.name
+            }
+            response.media = result
+        else:
+            response.status = falcon.HTTP_404
 
     @join_point
     def on_post_create_chat(self, request, response):
-        result = self.chat_manager.create_chat(**request.media)
-
-        print('123')
+        self.chat_manager.create_chat(**request.media)
         response.media = {
             'status': 'OK'
         }
+
+    @join_point
+    def on_get_get_chat(self, request, response):
+        chat = self.chat_manager.get_chat_by_id(**request.params)
+
+        print('123')
+        result = {
+            'creator_id': chat.creator.user_id,
+            'chat_members': chat.members,
+            'chat_name': chat.name,
+            'chat_creator_id': chat.creator.id
+        }
+        response.media = result
+
 
 
     # @join_point

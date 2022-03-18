@@ -19,7 +19,8 @@ class Settings:
 
 
 class DB:
-    engine = create_engine(Settings.db.DB_URL)
+    engine = create_engine(Settings.db.DB_URL, echo=True)
+    # database.metadata.drop_all(engine)
     database.metadata.create_all(engine)
     context = TransactionContext(bind=engine)
 

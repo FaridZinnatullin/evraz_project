@@ -1,5 +1,7 @@
 from typing import List, Optional, Tuple
 import random
+
+import attr
 from pydantic import conint, validate_arguments
 
 from classic.app import DTO, validate_with_dto
@@ -25,11 +27,9 @@ class ChatManager:
     chats_repo: interfaces.ChatRepo
     user_repo: interfaces.UserRepo
     chats_user_repo: interfaces.ChatUserRepo
-    # chat_blacklist_repo: interfaces.ChatBlackListRepo
-    # chat_superusers_repo: interfaces.ChatSuperusersRepo
 
     @join_point
-    def create_chat(self, chat_name:str, user_id: int):
+    def create_chat(self, chat_name: str, user_id: int, members_id: Optional[int] = None):
         print('124')
         tmp_id = random.randint(1, 10000)
         chat = Chat(name=chat_name, tmp_id=tmp_id)
@@ -38,12 +38,16 @@ class ChatManager:
         chat = self.get_chat_by_tmp_id(tmp_id)
         chat_user = self.create_chatuser(user_id=user_id, chat_id=chat.id)
         chat.creator = chat_user
+        chat.tmp_id = None
 
-        if members:
-            for member in members:
-                chat_user = self.create_chatuser(user_id=member.id, chat_id=chat.id)
-                chat.add_user(chat_user)
+        if members_id:
+            if type(members_id) == str:
+                members_id = members_id.split(',')
+            for member in members_id:
+                member_chatuser = self.create_chatuser(user_id=member, chat_id=chat.id)
+                chat.add_user(member_chatuser)
 
+        print('123')
         self.chats_repo.add(chat)
 
     @join_point
@@ -69,21 +73,7 @@ class ChatManager:
 
         return chat_user
 
-    # @join_point
-    # @validate_arguments
-    # def create_blacklist_by_chat_id(self, chat_id):
-    #     # chat = self.get_chat_by_id(chat_id)
-    #     blacklist = ChatBlackList()
-    #     blacklist = self.chat_blacklist_repo.add(blacklist)
-    #     return blacklist
-    #
-    # @join_point
-    # @validate_arguments
-    # def create_superusers_by_chat_id(self, chat_id):
-    #     # chat = self.get_chat_by_id(chat_id)
-    #     superusers = ChatSuperusers()
-    #     superusers = self.chat_superusers_repo.add(superusers)
-    #     return superusers
+
 
     # @join_point
     # @validate_arguments
@@ -107,14 +97,14 @@ class ChatManager:
     @validate_arguments
     def get_chat_by_id(self, chat_id: int):
         chat = self.chats_repo.get(chat_id)
+        chat.members_list = []
+        if chat.members:
+            for member in chat.members:
+                chat.members_list.append(attr.asdict(member))
+
         return chat
 
     @join_point
     def get_user_by_id(self, user_id: int):
         user = self.user_repo.get(user_id)
-        result = {
-            'user_login': user.login,
-            'user_password': user.password,
-            'user_name': user.name
-        }
-        return result
+        return user

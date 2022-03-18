@@ -11,16 +11,15 @@ from sqlalchemy.sql import select, and_
 class ChatRepo(BaseRepository, interfaces.ChatRepo):
 
     def get_all_messages(self, id_chat: int) -> List[ChatMessage]:
-        if id_chat:
-            query = select(Chat).where(Chat.id == id_chat)
-            chat = self.session.execute(query).scalars().all()
-            return chat.messages
+        query = select(Chat).where(Chat.id == id_chat)
+        chat = self.session.execute(query).scalars().all()
+        return chat.messages
 
     def get_all_users(self, id_chat: int) -> List[ChatUser]:
-        if id_chat:
-            query = select(Chat).where(Chat.id == id_chat).one()
-            chat = self.session.execute(query).scalars().all()
-            return chat.users
+
+        query = select(Chat).where(Chat.id == id_chat).one()
+        chat = self.session.execute(query).scalars().all()
+        return chat.users
 
     def get_chat_by_tmp_id(self, tmp_id: int) -> Chat:
         query = select(Chat).where(Chat.tmp_id == tmp_id)
@@ -38,9 +37,8 @@ class ChatRepo(BaseRepository, interfaces.ChatRepo):
     #         return chat_list
 
     def add(self, chat: Chat):
-        if chat:
-            self.session.add(chat)
-            # self.session.flush()
+        self.session.add(chat)
+        self.session.flush()
 
     def remove(self, chat: Chat):
         pass
@@ -48,15 +46,17 @@ class ChatRepo(BaseRepository, interfaces.ChatRepo):
     def get_info(self, chat: Chat):
         pass
 
-    def get(self, chat_id: int):
-        ...
+    def get(self, chat_id: int) -> Optional[Chat]:
+        query = select(Chat).where(Chat.id == chat_id)
+        chat = self.session.execute(query).scalars().first()
+        return chat
 
 
 @component
 class UserRepo(BaseRepository, interfaces.UserRepo):
 
-    def get(self, id_: int) -> Optional[User]:
-        query = select(User).where(User.id == id_)
+    def get(self, user_id: int) -> Optional[User]:
+        query = select(User).where(User.id == user_id)
         return self.session.execute(query).scalars().one_or_none()
 
     def add(self, user: User):
@@ -73,9 +73,13 @@ class UserRepo(BaseRepository, interfaces.UserRepo):
 @component
 class ChatUserRepo(BaseRepository, interfaces.ChatUserRepo):
 
-    def add(self, customer: ChatUser):
-        ...
+    def add(self, chatuser: ChatUser):
+        self.session.add(chatuser)
+        self.session.flush()
 
+    def get(self, chatuser_id: int):
+        query = select(ChatUser).where(User.id == chatuser_id)
+        return self.session.execute(query).scalars().one_or_none()
 
 @component
 class MessageRepo(BaseRepository, interfaces.MessageRepo):
