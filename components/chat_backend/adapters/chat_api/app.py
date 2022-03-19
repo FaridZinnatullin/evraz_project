@@ -21,23 +21,21 @@ def create_app(
 ) -> App:
 
     authenticator = Authenticator(app_groups=auth.ALL_GROUPS)
-
+    #
     if is_dev_mode:
         cors_middleware = falcon.CORSMiddleware(allow_origins='*')
-        authenticator.set_strategies(auth.dummy_strategy)
-    else:
-        cors_middleware = falcon.CORSMiddleware(allow_origins=allow_origins)
-        authenticator.set_strategies(auth_strategies.KeycloakOpenId())
+        #ТУТ ВЫБИРАЕМ СТРАТЕГИЮ АВТОРИЗАЦИИ
+        authenticator.set_strategies(auth.jwt_strategy)
 
-    middleware = [cors_middleware]
+    # middleware = [cors_middleware]
 
-    app = App(middleware=middleware, prefix='/api')
+    app = App(prefix='/api')
 
     # app.register(controllers.Catalog(catalog=catalog))
     # app.register(controllers.Orders(authenticator=authenticator, orders=orders))
     # app.register(controllers.Customers(authenticator=authenticator, customers=customers))
 
 
-    app.register(controllers.Chat(chat_manager=chat_manager))
+    app.register(controllers.Chat(authenticator=authenticator, chat_manager=chat_manager))
 
     return app

@@ -53,7 +53,6 @@ chats = Table(
     metadata,
     Column('id', Integer, primary_key=True, autoincrement=True),
     Column('name', String(50), nullable=False),
-    Column('tmp_id', Integer)
     # relationship('messages', 'ChatMessage'),
     # relationship('members', 'ChatUser'),
     # Column('blacklist_id', Integer, ForeignKey('ChatBlackLists.id')),
@@ -65,7 +64,7 @@ chat_messages = Table(
     metadata,
     Column('id', BigInteger, primary_key=True, autoincrement=True),
     Column('chat_id', Integer, ForeignKey('Chats.id')),
-    Column('user_id', Integer, ForeignKey('ChatUsers.id')),
+    Column('chatuser_id', Integer, ForeignKey('ChatUsers.id')),
     Column('text', Text, nullable=False),
     Column('send_date', DateTime, default=datetime.datetime.utcnow()),
     Column('deleted', Boolean, default=False),

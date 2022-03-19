@@ -50,11 +50,10 @@ class ChatUser:
 
 @attr.dataclass
 class ChatMessage:
-    chat: 'Chat'
-    user: User
+    chatuser: ChatUser
     text: str
-    send_date: datetime.datetime
-    deleted: bool
+    send_date: datetime.datetime = datetime.datetime.now()
+    deleted: bool = False
     id: Optional[int] = None
 
     def delete_message(self):
@@ -64,8 +63,6 @@ class ChatMessage:
 @attr.dataclass
 class Chat:
     name: str
-    #костыль, идей лучше нет
-    tmp_id: int
     creator: Optional[User] = None
     messages: List[ChatMessage] = attr.ib(factory=list)
     members: List[ChatUser] = attr.ib(factory=list)
@@ -78,6 +75,9 @@ class Chat:
         else:
             pass
             # выводим сообщение о том, что пользователь уже состоит в чате
+
+    def add_message(self, message: ChatMessage):
+        self.messages.append(message)
 
     # def ban_user(self, user: ChatUser):
     #     if user not in self.blacklist.users:

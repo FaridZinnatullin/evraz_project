@@ -10,20 +10,27 @@ mapper.map_imperatively(dataclasses.User, tables.users)
 
 # mapper.map_imperatively(dataclasses.ChatUser, tables.chat_users)
 
-mapper.map_imperatively(dataclasses.ChatUser,
-                        tables.chat_users,
-                        properties={
-                            'user': relationship(dataclasses.User, uselist=False, lazy='joined')
-                        }
-                        )
+mapper.map_imperatively(
+    dataclasses.ChatUser,
+    tables.chat_users,
+    properties={
+        'user': relationship(dataclasses.User, uselist=False, lazy='joined')
+    }
+)
 
-mapper.map_imperatively(dataclasses.ChatMessage, tables.chat_messages)
+mapper.map_imperatively(
+    dataclasses.ChatMessage,
+    tables.chat_messages,
+    properties={
+        'chatuser': relationship(dataclasses.ChatUser, uselist=False, lazy='joined')
+    }
+)
 
 mapper.map_imperatively(
     dataclasses.Chat,
     tables.chats,
     properties={
-        'members': relationship(dataclasses.ChatUser, lazy='subquery', uselist=True),
+        'members': relationship(dataclasses.ChatUser, lazy='subquery', uselist=True, cascade='all, delete-orphan'),
         'messages': relationship(dataclasses.ChatMessage, lazy='subquery'),
         'creator': relationship(dataclasses.ChatUser, uselist=False, lazy='joined')
     }

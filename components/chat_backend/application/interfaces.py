@@ -8,7 +8,6 @@ class UserRepo(ABC):
 
     @abstractmethod
     def get(self, id_: int) -> Optional[User]:
-        print('Абстракция?')
         ...
 
     @abstractmethod
@@ -20,6 +19,10 @@ class UserRepo(ABC):
     def get_or_create(self, id_: Optional[int]) -> User:
         ...
 
+    @abstractmethod
+    def check_user_login(self, user_login: Optional[str]) -> bool:
+        ...
+
 
 class ChatUserRepo(ABC):
 
@@ -27,6 +30,9 @@ class ChatUserRepo(ABC):
     def add(self, customer: ChatUser):
         ...
 
+    @abstractmethod
+    def get_chatuser(self, user_id: int, chat_id: int) -> Optional[ChatUser]:
+        ...
 
 class ChatRepo(ABC):
 
@@ -56,7 +62,7 @@ class ChatRepo(ABC):
         ...
 
     @abstractmethod
-    def get_chat_by_tmp_id(self, tmp_id: int) -> Chat:
+    def check_permission_member(self, user_id: int, chat_id: int) -> bool:
         ...
 
     # @abstractmethod

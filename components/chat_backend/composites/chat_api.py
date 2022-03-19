@@ -27,6 +27,7 @@ class DB:
     chat_repo = database.repositories.ChatRepo(context=context)
     chat_user_repo = database.repositories.ChatUserRepo(context=context)
     user_repo = database.repositories.UserRepo(context=context)
+    messages_repo = database.repositories.MessageRepo(context=context)
     # chat_blacklist_repo = database.repositories.ChatBlackListRepo(context=context)
     # chat_superusers_repo = database.repositories.ChatSuperusersRepo(context=context)
 
@@ -48,6 +49,7 @@ class Application:
         chats_repo=DB.chat_repo,
         chats_user_repo=DB.chat_user_repo,
         user_repo=DB.user_repo,
+        messages_repo=DB.messages_repo,
     )
     # orders = services.Orders(
     #     orders_repo=DB.orders_repo,
