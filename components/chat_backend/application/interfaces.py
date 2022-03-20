@@ -80,6 +80,10 @@ class MessageRepo(ABC):
     def add(self, message: ChatMessage):
         ...
 
+    @abstractmethod
+    def get_by_id(self, message_id: int):
+        ...
+
 
 # class ChatBlackListRepo(ABC):
 #

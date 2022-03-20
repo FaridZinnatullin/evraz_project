@@ -18,13 +18,13 @@ class Groups:
 # )
 
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
 
-
-SECRET_JWT_KEY = os.getenv('SECRET_JWT_KEY')
-
+# dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+# if os.path.exists(dotenv_path):
+#     load_dotenv(dotenv_path)
+#
+#
+# SECRET_JWT_KEY = os.getenv('SECRET_JWT_KEY')
 
 
 jwt_strategy = strategies.JWT(

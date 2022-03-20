@@ -30,9 +30,10 @@ class ChatManager:
     chats_repo: interfaces.ChatRepo
     user_repo: interfaces.UserRepo
     chats_user_repo: interfaces.ChatUserRepo
-    messages_repo: interfaces.MessageRepo
+    chat_messages_repo: interfaces.MessageRepo
 
     @join_point
+    @validate_arguments
     def create_chat(self, chat_name: str, user_id: int, member_ids: Optional[List[int]] = None):
         chat = Chat(name=chat_name)
         chat = self.chats_repo.add(chat)
@@ -105,10 +106,11 @@ class ChatManager:
             chat_user = self.chats_user_repo.get_chatuser(user_id, chat_id)
             message = ChatMessage(chatuser=chat_user, text=message)
             chat.add_message(message)
-            self.messages_repo.add(message)
+            self.chat_messages_repo.add(message)
             self.chats_repo.add(chat)
         else:
             raise errors.NoPermission()
+
 
     @join_point
     @validate_arguments
@@ -116,6 +118,15 @@ class ChatManager:
         chat = self.get_chat_by_id(chat_id)
         if self.chats_repo.check_permission_member(user_id=user_id, chat_id=chat_id):
             return chat.messages
+
+    @join_point
+    @validate_arguments
+    def get_message_by_id(self, message_id: int):
+        message = self.chat_messages_repo.get_by_id(message_id)
+        if not message:
+            raise errors.UncorrectedParams
+        return message
+
 
 
     # @join_point
@@ -151,6 +162,7 @@ class ChatManager:
         else:
             user = user_data.create_obj(User)
             user = self.user_repo.add(user)
+
             # TODO: выкинуть этот процесс в auth.py, а токен в env
             token = jwt.encode(
                 {
@@ -162,6 +174,7 @@ class ChatManager:
                 'this_is_secret_key_for_jwt',
                 algorithm="HS256"
             )
+
             return token
 
 

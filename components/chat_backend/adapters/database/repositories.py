@@ -90,3 +90,8 @@ class MessageRepo(BaseRepository, interfaces.MessageRepo):
     def add(self, message: ChatMessage):
         self.session.add(message)
         self.session.flush()
+
+    def get_by_id(self, message_id: int):
+        query = select(ChatMessage).where(ChatMessage.id == message_id)
+        message = self.session.execute(query).scalars().first()
+        return message

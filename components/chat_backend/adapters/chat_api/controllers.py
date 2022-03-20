@@ -109,9 +109,9 @@ class Chat:
 
         response.media = result
 
+
     @join_point
     def on_post_registration(self, request, response):
-        # request.params['user_id'] = request.context.client.user_id
         token = self.chat_manager.registration(**request.media)
 
         response.media = {

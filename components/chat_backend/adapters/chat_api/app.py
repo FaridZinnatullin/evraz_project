@@ -21,20 +21,10 @@ def create_app(
 ) -> App:
 
     authenticator = Authenticator(app_groups=auth.ALL_GROUPS)
-    #
-    if is_dev_mode:
-        cors_middleware = falcon.CORSMiddleware(allow_origins='*')
-        #ТУТ ВЫБИРАЕМ СТРАТЕГИЮ АВТОРИЗАЦИИ
-        authenticator.set_strategies(auth.jwt_strategy)
 
-    # middleware = [cors_middleware]
+    authenticator.set_strategies(auth.jwt_strategy)
 
     app = App(prefix='/api')
-
-    # app.register(controllers.Catalog(catalog=catalog))
-    # app.register(controllers.Orders(authenticator=authenticator, orders=orders))
-    # app.register(controllers.Customers(authenticator=authenticator, customers=customers))
-
 
     app.register(controllers.Chat(authenticator=authenticator, chat_manager=chat_manager))
 
