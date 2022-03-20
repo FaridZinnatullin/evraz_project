@@ -63,7 +63,7 @@ class ChatMessage:
 @attr.dataclass
 class Chat:
     name: str
-    creator: Optional[User] = None
+    creator: Optional[ChatUser] = None
     messages: List[ChatMessage] = attr.ib(factory=list)
     members: List[ChatUser] = attr.ib(factory=list)
     id: Optional[int] = None

@@ -24,10 +24,10 @@ class DB:
     database.metadata.create_all(engine)
     context = TransactionContext(bind=engine)
 
-    chat_repo = database.repositories.ChatRepo(context=context)
-    chat_user_repo = database.repositories.ChatUserRepo(context=context)
+    chats_repo = database.repositories.ChatRepo(context=context)
+    chats_user_repo = database.repositories.ChatUserRepo(context=context)
     user_repo = database.repositories.UserRepo(context=context)
-    messages_repo = database.repositories.MessageRepo(context=context)
+    chat_messages_repo = database.repositories.MessageRepo(context=context)
     # chat_blacklist_repo = database.repositories.ChatBlackListRepo(context=context)
     # chat_superusers_repo = database.repositories.ChatSuperusersRepo(context=context)
 
@@ -46,10 +46,10 @@ class Application:
     # chat_blacklist_repo: interfaces.ChatBlackListRepo
     # chat_superusers_repo: interfaces.ChatSuperusersRepo
     chat_manager = services.ChatManager(
-        chats_repo=DB.chat_repo,
-        chats_user_repo=DB.chat_user_repo,
+        chats_repo=DB.chats_repo,
+        chats_user_repo=DB.chats_user_repo,
         user_repo=DB.user_repo,
-        messages_repo=DB.messages_repo,
+        chat_messages_repo=DB.chat_messages_repo,
     )
     # orders = services.Orders(
     #     orders_repo=DB.orders_repo,

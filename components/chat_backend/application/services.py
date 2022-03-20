@@ -24,6 +24,23 @@ class UserInfo(DTO):
     password: str
 
 
+class BanUserInfo(DTO):
+    user_id: int
+    banned_user_id: int
+    chat_id: int
+
+
+class AddToChatInfo(DTO):
+    user_id: int
+    invited_user_id: int
+    chat_id: int
+
+
+class CreateChatInfo(DTO):
+    chat_name: str
+    user_id: int
+    member_ids: Optional[List[int]]
+
 
 @component
 class ChatManager:
@@ -33,29 +50,77 @@ class ChatManager:
     chat_messages_repo: interfaces.MessageRepo
 
     @join_point
-    @validate_arguments
-    def create_chat(self, chat_name: str, user_id: int, member_ids: Optional[List[int]] = None):
-        chat = Chat(name=chat_name)
+    @validate_with_dto
+    def create_chat(self, chat_info: CreateChatInfo):
+        chat = Chat(name=chat_info.chat_name)
         chat = self.chats_repo.add(chat)
-        chat_user = self.create_chatuser(user_id=user_id, chat_id=chat.id)
+        chat_user = self.create_chatuser(user_id=chat_info.user_id, chat_id=chat.id)
         chat.creator = chat_user
 
-        # TODO: отправлять JSON через postman
-        for member in member_ids:
-            member_chatuser = self.create_chatuser(user_id=member, chat_id=chat.id)
-            chat.add_user(member_chatuser)
+        for member_id in chat_info.member_ids:
+            if member_id != chat_info.user_id:
+                member_chatuser = self.create_chatuser(user_id=member_id, chat_id=chat.id)
+                chat.add_user(member_chatuser)
 
         self.chats_repo.add(chat)
-
 
     @join_point
     @validate_arguments
     def delete_chat(self, user_id: int, chat_id: int):
         chat = self.get_chat_by_id(chat_id)
-        if chat.creator.user_id != user_id:
-            raise errors.NoPermission()
+        if chat:
+            if chat.creator.user_id != user_id:
+                raise errors.NoPermission()
+            else:
+                self.chats_repo.remove(chat)
         else:
-            self.chats_repo.remove(chat)
+            raise errors.UncorrectedParams()
+
+    @join_point
+    @validate_arguments
+    def comeback_to_chat(self, user_id: int, chat_id: int):
+        chatuser = self.get_chat_user(user_id, chat_id)
+        chat = self.get_chat_by_id(chat_id=chat_id)
+        if chatuser:
+            if chatuser.banned:
+                raise errors.BannedUser()
+            raise errors.UncorrectedParams()
+        if chat:
+            self.create_chatuser(user_id, chat_id)
+        else:
+            raise errors.UncorrectedParams()
+
+    @join_point
+    @validate_arguments
+    def add_to_chat(self, add_to_chat_info: AddToChatInfo):
+        chat_user = self.get_chat_user(AddToChatInfo.invited_user_id, AddToChatInfo.chat_id)
+        if self.chats_repo.check_permission_admin(add_to_chat_info.user_id, add_to_chat_info.chat_id) and not chat_user:
+            self.create_chatuser(AddToChatInfo.invited_user_id, AddToChatInfo.chat_id)
+
+    @join_point
+    @validate_arguments
+    def leave_chat(self, user_id: int, chat_id: int):
+        chatuser = self.get_chat_user(user_id, chat_id)
+        # проверка, является ли пользователь участником чата...
+        if self.chats_repo.check_permission_member(user_id, chat_id):
+            # проверка, является ли пользователь создателем чата...
+            if self.chats_repo.check_permission_admin(user_id, chat_id):
+                # удаляем чат вмесие со всеми чатюзерами
+                self.delete_chat(user_id, chat_id)
+            else:
+                self.chats_user_repo.remove(chatuser)
+
+    @join_point
+    @validate_with_dto
+    def ban_user(self, ban_info: BanUserInfo):
+        chatuser = self.get_chat_user(ban_info.banned_user_id, ban_info.chat_id)
+        if self.chats_repo.check_permission_member(ban_info.banned_user_id,
+                                                   ban_info.chat_id) and self.chats_repo.check_permission_admin(
+            ban_info.user_id, ban_info.chat_id):
+            chatuser.banned = True
+            self.chats_user_repo.add(chatuser)
+        else:
+            raise errors.UncorrectedParams()
 
     @join_point
     @validate_arguments
@@ -66,15 +131,6 @@ class ChatManager:
         else:
             chat.name = new_name
             self.chats_repo.add(chat)
-
-
-    @join_point
-    @validate_arguments
-    def create_user(self, name: str, login: str, password: str):
-        user = User(name=name, login=login, password=password)
-        user = self.user_repo.add(user)
-        return user
-
 
     @join_point
     @validate_arguments
@@ -90,8 +146,7 @@ class ChatManager:
     @validate_arguments
     def get_all_chatusers(self, user_id: int, chat_id: int):
         chat = self.get_chat_by_id(chat_id)
-        chat_user = self.get_chat_user(user_id, chat_id)
-        if chat_user in chat.members:
+        if self.chats_repo.check_permission_member(user_id=user_id, chat_id=chat_id):
             return chat.members
         else:
             raise errors.NoPermission()
@@ -99,9 +154,8 @@ class ChatManager:
     @join_point
     @validate_arguments
     def create_message(self, user_id: int, chat_id: int, message: str):
-        user = self.get_user_by_id(user_id)
         chat = self.get_chat_by_id(chat_id)
-        #прверка доступа
+        # прверка доступа
         if self.chats_repo.check_permission_member(user_id=user_id, chat_id=chat_id):
             chat_user = self.chats_user_repo.get_chatuser(user_id, chat_id)
             message = ChatMessage(chatuser=chat_user, text=message)
@@ -111,11 +165,12 @@ class ChatManager:
         else:
             raise errors.NoPermission()
 
-
     @join_point
     @validate_arguments
     def get_all_chat_messages(self, user_id: int, chat_id: int):
         chat = self.get_chat_by_id(chat_id)
+        if not chat:
+            raise errors.UncorrectedParams()
         if self.chats_repo.check_permission_member(user_id=user_id, chat_id=chat_id):
             return chat.messages
 
@@ -124,17 +179,9 @@ class ChatManager:
     def get_message_by_id(self, message_id: int):
         message = self.chat_messages_repo.get_by_id(message_id)
         if not message:
-            raise errors.UncorrectedParams
+            raise errors.UncorrectedParams()
         return message
 
-
-
-    # @join_point
-    # @validate_arguments
-    # def get_chat_messages(self, chat_id: int):
-    #     messages = self.chats_repo.get_all_messages(chat_id)
-    #     return messages
-    #
     @join_point
     @validate_arguments
     def get_chat_user(self, user_id: int, chat_id: int):
@@ -146,6 +193,15 @@ class ChatManager:
     def get_chat_by_id(self, chat_id: int):
         chat = self.chats_repo.get(chat_id)
         return chat
+
+    @join_point
+    @validate_arguments
+    def get_chat_by_id_public(self, chat_id: int, user_id: int):
+        if self.chats_repo.check_permission_member(chat_id=chat_id, user_id=user_id):
+            chat = self.chats_repo.get(chat_id)
+            return chat
+        else:
+            raise errors.NoPermission()
 
     @join_point
     def get_user_by_id(self, user_id: int):
@@ -176,9 +232,3 @@ class ChatManager:
             )
 
             return token
-
-
-
-
-
-

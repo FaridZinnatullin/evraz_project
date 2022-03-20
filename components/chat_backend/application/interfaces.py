@@ -34,6 +34,10 @@ class ChatUserRepo(ABC):
     def get_chatuser(self, user_id: int, chat_id: int) -> Optional[ChatUser]:
         ...
 
+    @abstractmethod
+    def remove(self, chat_user: ChatUser):
+        ...
+
 class ChatRepo(ABC):
 
     @abstractmethod
@@ -63,6 +67,10 @@ class ChatRepo(ABC):
 
     @abstractmethod
     def check_permission_member(self, user_id: int, chat_id: int) -> bool:
+        ...
+
+    @abstractmethod
+    def check_permission_admin(self, user_id: int, chat_id: int):
         ...
 
     # @abstractmethod

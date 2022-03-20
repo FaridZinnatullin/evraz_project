@@ -25,6 +25,7 @@ class ChatRepo(BaseRepository, interfaces.ChatRepo):
         self.session.flush()
         return chat
 
+
     def remove(self, chat: Chat):
         self.session.delete(chat)
 
@@ -43,6 +44,15 @@ class ChatRepo(BaseRepository, interfaces.ChatRepo):
             if not chatuser.banned:
                 return True
         return False
+
+    def check_permission_admin(self, user_id: int, chat_id: int):
+        query = select(Chat).where(Chat.id == chat_id)
+        chat = self.session.execute(query).scalars().first()
+        if chat:
+            if chat.creator.user_id == user_id:
+                return True
+        return False
+
 
 
 @component
@@ -79,9 +89,12 @@ class ChatUserRepo(BaseRepository, interfaces.ChatUserRepo):
     #     return self.session.execute(query).scalars().one_or_none()
 
     def get_chatuser(self, user_id: int, chat_id: int) -> Optional[ChatUser]:
-        query = select(ChatUser).where(and_(ChatUser.chat_id == user_id, ChatUser.user_id == chat_id))
+        query = select(ChatUser).where(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id))
         chatuser = self.session.execute(query).scalars().first()
         return chatuser
+
+    def remove(self, chat_user: ChatUser):
+        self.session.delete(chat_user)
 
 
 @component

@@ -46,9 +46,10 @@ class Chat:
     @authenticate
     def on_get_get_chat(self, request, response):
         request.params['user_id'] = request.context.client.user_id
-        chat = self.chat_manager.get_chat_by_id(**request.params)
+        chat = self.chat_manager.get_chat_by_id_public(**request.params)
 
         result = {
+            'chat_id': chat.id,
             'creator_id': chat.creator.user_id,
             'chat_name': chat.name,
             'chat_creator_id': chat.creator.id
@@ -75,14 +76,15 @@ class Chat:
         users = self.chat_manager.get_all_chatusers(**request.params)
 
         result = []
-        for user in users:
-            user = {
-                'chatuser_id': user.chat_id,
-                'user_id': user.user.id,
-                'name': user.user.name,
-                'invite_datetime': str(user.invite_date)
-            }
-            result.append(user)
+        if users:
+            for user in users:
+                user = {
+                    'chatuser_id': user.chat_id,
+                    'user_id': user.user.id,
+                    'name': user.user.name,
+                    'invite_datetime': str(user.invite_date)
+                }
+                result.append(user)
         response.media = result
 
     @join_point
@@ -98,14 +100,15 @@ class Chat:
         messages = self.chat_manager.get_all_chat_messages(**request.params)
 
         result = []
-        for message in messages:
-            message = {
-                'message_id': message.id,
-                'user_id': message.chatuser.user.id,
-                'chatuser_id': message.chatuser.id,
-                'text_message': message.text
-            }
-            result.append(message)
+        if messages:
+            for message in messages:
+                message = {
+                    'message_id': message.id,
+                    'user_id': message.chatuser.user.id,
+                    'chatuser_id': message.chatuser.id,
+                    'text_message': message.text
+                }
+                result.append(message)
 
         response.media = result
 
@@ -118,5 +121,16 @@ class Chat:
             "token": token
         }
 
+    @join_point
+    @authenticate
+    def on_post_ban_user(self, request, response):
+        request.media['user_id'] = request.context.client.user_id
+        self.chat_manager.ban_user(**request.media)
 
+
+    @join_point
+    @authenticate
+    def on_post_leave_chat(self, request, response):
+        request.media['user_id'] = request.context.client.user_id
+        self.chat_manager.leave_chat(**request.media)
 
