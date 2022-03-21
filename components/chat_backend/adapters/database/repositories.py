@@ -76,6 +76,11 @@ class UserRepo(BaseRepository, interfaces.UserRepo):
     def get_or_create(self, id_: Optional[int]) -> User:
         ...
 
+    def authorization(self, login: str, password: str):
+        query = select(User).where(and_(User.login == login, User.password == password))
+        user = self.session.execute(query).scalars().first()
+        return user
+
 
 @component
 class ChatUserRepo(BaseRepository, interfaces.ChatUserRepo):
@@ -106,5 +111,5 @@ class MessageRepo(BaseRepository, interfaces.MessageRepo):
 
     def get_by_id(self, message_id: int):
         query = select(ChatMessage).where(ChatMessage.id == message_id)
-        message = self.session.execute(query).scalars().first()
+        message = self.session.execute(query).scalars().one_or_none()
         return message

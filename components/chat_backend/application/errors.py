@@ -19,3 +19,8 @@ class UncorrectedParams(AppError):
 class BannedUser(AppError):
     msg_template = "This user was banned in this chat"
     code = 'chat.banned_user'
+
+
+class UncorrectedLoginPassword(AppError):
+    msg_template = "Incorrect username or password"
+    code = 'chat.authorization'

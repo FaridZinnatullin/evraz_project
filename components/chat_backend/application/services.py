@@ -15,12 +15,24 @@ join_points = PointCut()
 join_point = join_points.join_point
 
 
-# class ChatInfo(DTO):
-#     name: str
-#     members: List[ChatUser] = None
+class RenameChatInfo(DTO):
+    user_id: int
+    chat_id: int
+    new_name: int
+
+
+class CreateMessageInfo(DTO):
+    user_id: int
+    chat_id: int
+    message: str
+
 
 class UserInfo(DTO):
     name: str
+    login: str
+    password: str
+
+class UserLoginInfo(DTO):
     login: str
     password: str
 
@@ -124,13 +136,13 @@ class ChatManager:
             raise errors.UncorrectedParams()
 
     @join_point
-    @validate_arguments
-    def rename_chat(self, user_id: int, chat_id: int, new_name: str):
-        chat = self.get_chat_by_id(chat_id)
-        if chat.creator.user_id != user_id:
+    @validate_with_dto
+    def rename_chat(self, rename_info: RenameChatInfo):
+        chat = self.get_chat_by_id(rename_info.chat_id)
+        if chat.creator.user_id != rename_info.user_id:
             raise errors.NoPermission()
         else:
-            chat.name = new_name
+            chat.name = rename_info.new_name
             self.chats_repo.add(chat)
 
     @join_point
@@ -152,14 +164,15 @@ class ChatManager:
         else:
             raise errors.NoPermission()
 
+    # TODO: Воткнуть ДТО
     @join_point
     @validate_arguments
-    def create_message(self, user_id: int, chat_id: int, message: str):
-        chat = self.get_chat_by_id(chat_id)
+    def create_message(self, message_info: CreateMessageInfo):
+        chat = self.get_chat_by_id(message_info.chat_id)
         # прверка доступа
-        if self.chats_repo.check_permission_member(user_id=user_id, chat_id=chat_id):
-            chat_user = self.chats_user_repo.get_chatuser(user_id, chat_id)
-            message = ChatMessage(chatuser=chat_user, text=message)
+        if self.chats_repo.check_permission_member(user_id=message_info.user_id, chat_id=message_info.chat_id):
+            chat_user = self.chats_user_repo.get_chatuser(message_info.user_id, message_info.chat_id)
+            message = ChatMessage(chatuser=chat_user, text=message_info.message)
             chat.add_message(message)
             self.chat_messages_repo.add(message)
             self.chats_repo.add(chat)
@@ -220,16 +233,13 @@ class ChatManager:
             user = user_data.create_obj(User)
             user = self.user_repo.add(user)
 
-            # TODO: выкинуть этот процесс в auth.py, а токен в env
-            token = jwt.encode(
-                {
-                    "sub": user.id,
-                    "login": user.login,
-                    "name": user.name,
-                    "group": "User"
-                },
-                os.getenv('SECRET_JWT_KEY'),
-                algorithm="HS256"
-            )
+            return user
 
-            return token
+    @join_point
+    @validate_with_dto
+    def login(self, user_data: UserLoginInfo):
+        user = self.user_repo.authorization(user_data.login, user_data.password)
+        if user:
+            return user
+        else:
+            raise errors.UncorrectedLoginPassword()

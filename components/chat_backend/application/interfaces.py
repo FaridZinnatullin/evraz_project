@@ -23,6 +23,9 @@ class UserRepo(ABC):
     def check_user_login(self, user_login: Optional[str]) -> bool:
         ...
 
+    @abstractmethod
+    def authorization(self, login: str, password: str):
+        ...
 
 class ChatUserRepo(ABC):
 

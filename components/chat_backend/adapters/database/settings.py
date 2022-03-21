@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 
 
-# РАЗОБРАТЬ ALEMBIC
 class Settings(BaseSettings):
 
     @property
