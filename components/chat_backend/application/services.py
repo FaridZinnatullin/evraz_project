@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional
 
 from classic.aspects import PointCut
@@ -227,7 +228,7 @@ class ChatManager:
                     "name": user.name,
                     "group": "User"
                 },
-                'this_is_secret_key_for_jwt',
+                os.getenv('SECRET_JWT_KEY'),
                 algorithm="HS256"
             )
 

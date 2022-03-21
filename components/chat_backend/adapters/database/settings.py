@@ -8,10 +8,9 @@ class Settings(BaseSettings):
 
     @property
     def DB_URL(self):
-        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-        if os.path.exists(dotenv_path):
-            load_dotenv(dotenv_path)
-
+        # dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+        # if os.path.exists(dotenv_path):
+        #     load_dotenv(dotenv_path)
         # PG_USER = os.getenv('POSTGRES_USER')
         # PG_PASSWORD = os.getenv('POSTGRES_PASSWORD')
         # PG_DBNAME = os.getenv('POSTGRES_NAME')
