@@ -118,19 +118,19 @@ class Chat:
     @join_point
     def on_post_registration(self, request, response):
         user = self.chat_manager.registration(**request.media)
-        token = jwt.encode(
-            {
-                "sub": user.id,
-                "login": user.login,
-                "name": user.name,
-                "group": "User"
-            },
-            os.getenv('SECRET_JWT_KEY'),
-            algorithm="HS256"
-        )
-        response.media = {
-            "token": token
-        }
+        # token = jwt.encode(
+        #     {
+        #         "sub": user.id,
+        #         "login": user.login,
+        #         "name": user.name,
+        #         "group": "User"
+        #     },
+        #     os.getenv('SECRET_JWT_KEY'),
+        #     algorithm="HS256"
+        # )
+        # response.media = {
+        #     "token": token
+        # }
 
     @join_point
     def on_post_login(self, request, response):

@@ -22,8 +22,8 @@ class RenameChatInfo(DTO):
 
 
 class CreateMessageInfo(DTO):
-    user_id: int
-    chat_id: int
+    user_id: str
+    chat_id: str
     message: str
 
 
@@ -166,7 +166,7 @@ class ChatManager:
 
     # TODO: Воткнуть ДТО
     @join_point
-    @validate_arguments
+    @validate_with_dto
     def create_message(self, message_info: CreateMessageInfo):
         chat = self.get_chat_by_id(message_info.chat_id)
         # прверка доступа
